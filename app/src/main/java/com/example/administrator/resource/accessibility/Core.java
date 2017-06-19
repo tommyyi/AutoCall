@@ -119,6 +119,7 @@ public class Core extends AccessibilityService
         }
     }
 
+
     @Override
     public void onInterrupt()
     {
