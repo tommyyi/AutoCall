@@ -3,10 +3,16 @@ package com.example.administrator.resource.accessibility;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
+
+import com.example.administrator.resource.R;
 
 import java.util.List;
 
@@ -15,12 +21,28 @@ import java.util.List;
  */
 public class Core extends AccessibilityService
 {
-    public static final String INSTALL = "安装";
-    public static final String OPEN = "打开";
+    public static final String INSTALL = "install";
+    public static final String OPEN = "open";
     public static final String WIDGET_CLASS = "android.widget.TextView";
+    private static final String TAG1 = "receive event";
     final String TAG = Core.class.getSimpleName();
 
-    String installPackge[] = {"com.android.packageinstaller"};
+    String installPackge[] = {"com.android.incallui","com.android.phone","com.tencent.mobileqq"};
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+        Notification.Builder builder=new Notification.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setTicker("今日头条");
+        builder.setContentTitle("this is title");
+        builder.setContentText("this is content");
+        builder.setWhen(System.currentTimeMillis());
+        Notification notification = builder.build();
+
+        startForeground(1, notification);
+    }
 
     @Override
     protected void onServiceConnected()
@@ -33,6 +55,7 @@ public class Core extends AccessibilityService
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
         info.notificationTimeout = 100; //通知的时间
         setServiceInfo(info);
+        Toast.makeText(getApplicationContext(),"connected",Toast.LENGTH_LONG).show();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -81,6 +104,8 @@ public class Core extends AccessibilityService
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event)
     {
+        Toast.makeText(getApplicationContext(),"onAccessibilityEvent",Toast.LENGTH_LONG).show();
+        Log.d(TAG1,event.getPackageName().toString());
         if (event.getSource() != null)
         {
             if (exist(INSTALL))
@@ -97,5 +122,7 @@ public class Core extends AccessibilityService
     @Override
     public void onInterrupt()
     {
+        Toast.makeText(getApplicationContext(),"onInterrupt",Toast.LENGTH_LONG).show();
+        Log.d("receive event","onInterrupt");
     }
 }

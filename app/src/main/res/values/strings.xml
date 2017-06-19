@@ -1,13 +1,4 @@
 <resources>
     <string name="app_name">Resource</string>
-    <string name="jet">FOX</string>
     <string name="testaccessibility">installaccessibility</string>
-
-    <integer name="amount_of_pager">3</integer>
-    <array name="pagerTitleArray">
-        <item>mm测试</item>
-        <item>基地测试</item>
-        <item>动漫测试</item>
-    </array>
-    <attr name="my" format="string"/>
 </resources>
