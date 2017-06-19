@@ -27,7 +27,7 @@ public class Core extends AccessibilityService
     private static final String TAG1 = "receive event";
     final String TAG = Core.class.getSimpleName();
 
-    String installPackge[] = {"com.android.incallui","com.android.phone","com.tencent.mobileqq"};
+    String installPackge[] = {"com.android.incallui","com.android.phone","com.tencent.mobileqq","com.android.dialer"};
 
     @Override
     public void onCreate()
@@ -118,7 +118,6 @@ public class Core extends AccessibilityService
             }
         }
     }
-
 
     @Override
     public void onInterrupt()
