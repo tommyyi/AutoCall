@@ -1,33 +1,26 @@
 package com.example.administrator.resource.accessibility;
 
+import java.util.List;
+
+import com.example.administrator.resource.R;
+
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
-
-import com.example.administrator.resource.R;
-
-import java.util.List;
 
 /**
  * Created by Administrator on 2016/7/21.
  */
 public class Core extends AccessibilityService
 {
-    public static final String INSTALL = "install";
-    public static final String OPEN = "open";
-    public static final String WIDGET_CLASS = "android.widget.TextView";
-    private static final String TAG1 = "receive event";
-    final String TAG = Core.class.getSimpleName();
-
-    String installPackge[] = {"com.android.incallui","com.android.phone","com.tencent.mobileqq","com.android.dialer"};
+    public static final String IMAGE_BUTTON = "android.widget.ImageButton";
+    private static final String COM_ANDROID_DIALER = "com.android.dialer";
+    String installPackge[] = {COM_ANDROID_DIALER};
 
     @Override
     public void onCreate()
@@ -48,75 +41,111 @@ public class Core extends AccessibilityService
     protected void onServiceConnected()
     {
         super.onServiceConnected();
-        //可用代码配置当前Service的信息
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-        info.packageNames = installPackge; //监听过滤的包名
-        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK; //监听哪些行为
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
-        info.notificationTimeout = 100; //通知的时间
+        info.packageNames = installPackge;
+        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
+        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
+        info.notificationTimeout = 300;
         setServiceInfo(info);
         Toast.makeText(getApplicationContext(),"connected",Toast.LENGTH_LONG).show();
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void findAndPerformAction(String buttonLabel)
+    private void findImageAndPress(String viewId)
     {
-        //通过文字找到当前的节点
-        List<AccessibilityNodeInfo> nodes = getRootInActiveWindow().findAccessibilityNodeInfosByText(buttonLabel);
+        //through viewId to find
+        List<AccessibilityNodeInfo> nodes = getRootInActiveWindow().findAccessibilityNodeInfosByViewId(COM_ANDROID_DIALER+":id/"+viewId);
         if (nodes == null || nodes.size() == 0)
         {
             return;
         }
 
-        for (int i = 0; i < nodes.size(); i++)
-        {
-            AccessibilityNodeInfo node = nodes.get(i);
-            Log.e(TAG, "index=" + i + "");
-            Log.e(TAG, buttonLabel + ": class name :" + node.getClassName().toString());
-            Log.e(TAG, buttonLabel + ": text :" + node.getText().toString());
-            // 执行按钮点击行为
-            if (node.getClassName().equals(WIDGET_CLASS) && node.isEnabled() && node.getText().toString().equals(buttonLabel) && node.isClickable())
-            {
-                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                Log.e(TAG, "Click " + buttonLabel);
-            }
-        }
+        AccessibilityNodeInfo accessibilityNodeInfo = nodes.get(0);
+        if (accessibilityNodeInfo.getClassName().equals(IMAGE_BUTTON))
+            accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean exist(String buttonLabel)
+    private boolean isViewExist(String viewId)
     {
-        if (getRootInActiveWindow() == null)
-        {
-            return false;
-        }
-
-        List<AccessibilityNodeInfo> nodes = getRootInActiveWindow().findAccessibilityNodeInfosByText(buttonLabel);
+        //通过viewId找到当前的节点
+        List<AccessibilityNodeInfo> nodes = getRootInActiveWindow().findAccessibilityNodeInfosByViewId(COM_ANDROID_DIALER+":id/"+viewId);
         if (nodes == null || nodes.size() == 0)
         {
             return false;
         }
 
-        Log.e(TAG, buttonLabel + ": target");
         return true;
     }
 
+    /*
+    * com.android.dialer
+    * id:
+    *
+    *android.widget.ImageView
+    *
+    * android.widget.ImageButton
+    * com.android.dialer:id/one
+    * com.android.dialer:id/two
+    * com.android.dialer:id/three
+    * com.android.dialer:id/four
+    * com.android.dialer:id/five
+    * com.android.dialer:id/six
+    * com.android.dialer:id/seven
+    * com.android.dialer:id/eight
+    * com.android.dialer:id/nine
+    * com.android.dialer:id/zero
+    *
+    * android.widget.EditText
+    * com.android.dialer:id/digits
+    *
+    * android.widget.ImageButton
+    * com.android.dialer:id/dialButton*/
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event)
     {
-        Toast.makeText(getApplicationContext(),"onAccessibilityEvent",Toast.LENGTH_LONG).show();
-        Log.d(TAG1,event.getPackageName().toString());
-        if (event.getSource() != null)
+        Toast.makeText(getApplicationContext(),"onAccessibilityEvent--"+event.getEventType(),Toast.LENGTH_LONG).show();
+
+        if(!isViewExist("dialButton")
+                ||!isViewExist("one")
+                ||!isViewExist("two")
+                ||!isViewExist("three")
+                ||!isViewExist("four")
+                ||!isViewExist("five")
+                ||!isViewExist("six")
+                ||!isViewExist("seven")
+                ||!isViewExist("eight")
+                ||!isViewExist("nine")
+                ||!isViewExist("zero")
+                )
+            return;
+
+        clearDigits("digits");
+        findImageAndPress("one");
+        findImageAndPress("three");
+        findImageAndPress("eight");
+        findImageAndPress("two");
+        findImageAndPress("five");
+        findImageAndPress("two");
+        findImageAndPress("five");
+        findImageAndPress("eight");
+        findImageAndPress("two");
+        findImageAndPress("seven");
+        findImageAndPress("nine");
+
+        findImageAndPress("dialButton");
+    }
+
+    private void clearDigits(String digits)
+    {
+        List<AccessibilityNodeInfo> nodes = getRootInActiveWindow().findAccessibilityNodeInfosByViewId(COM_ANDROID_DIALER+":id/"+digits);
+        if (nodes == null || nodes.size() == 0)
         {
-            if (exist(INSTALL))
-            {
-                findAndPerformAction(INSTALL);
-            }
-            if (exist(OPEN))
-            {
-                findAndPerformAction(OPEN);
-            }
+            return;
         }
+
+        AccessibilityNodeInfo accessibilityNodeInfo = nodes.get(0);
+        Bundle arguments = new Bundle();
+        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
+        accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,arguments);
     }
 
     @Override
